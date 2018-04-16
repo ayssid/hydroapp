@@ -16,6 +16,12 @@
           </v-list-tile-action>
           <v-list-tile-content>{{item.title}}</v-list-tile-content>
         </v-list-tile>
+        <v-list-tile @click="doLogout" v-if="userIsAuthenticated">
+          <v-list-tile-action>
+            <v-icon>lock</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>Logout</v-list-tile-content>
+        </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -28,9 +34,13 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only" >
-        <v-btn flat v-for="item in menuItems" :key="item.title">
+        <v-btn flat v-for="item in menuItems" :key="item.title" :to="item.link">
           <v-icon left>{{item.icon}}</v-icon>
           {{item.title}}
+        </v-btn>
+        <v-btn flat v-if="userIsAuthenticated" @click="doLogout">
+          <v-icon left>lock</v-icon>
+          Logout
         </v-btn>
       </v-toolbar-items>
     </v-toolbar>
@@ -50,21 +60,34 @@ export default {
       clipped: false,
       drawer: false,
       fixed: true,
-      menuItems: [{
-        icon: 'create',
-        title: 'Create Reservoir'
-      }, {
-        icon: 'account_box',
-        title: 'Profile'
-      }, {
-        icon: 'lock_open',
-        title: 'Login'
-      }, {
-        icon: 'supervisor_account',
-        title: 'Sign Up'
-      }],
       miniVariant: false,
       title: 'Vuetify.js'
+    }
+  },
+  methods: {
+    doLogout () {
+      this.$store.dispatch('logout')
+    }
+  },
+  computed: {
+    userIsAuthenticated () {
+      return this.$store.getters.user !== null && this.$store.getters.user !== undefined
+    },
+    menuItems () {
+      let menuItems = [
+        // {icon: 'face', title: 'Sign Up', link: '/signup'},
+        {icon: 'lock_open', title: 'Sign In', link: '/signin'}
+      ]
+      if (this.userIsAuthenticated) {
+        menuItems = [{
+          icon: 'create',
+          title: 'Create Reservoir'
+        }, {
+          icon: 'account_box',
+          title: 'Profile'
+        }]
+      }
+      return menuItems
     }
   },
   name: 'App'
